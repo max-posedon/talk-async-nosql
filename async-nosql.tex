@@ -1,0 +1,133 @@
+\documentclass{beamer}
+\usepackage[utf8]{inputenc}
+
+\begin{document}
+
+\title{NoSQL and Async not needed}
+\author{Maksim 'max\_posedon' Melnikau}
+\institute{Linux Mobile hobbyist\\World of Tanks developer}
+\date{\today}
+\frame{\titlepage}
+
+\section{Overview}
+\frame{
+  \frametitle{worldoftanks.ru month numbers (Google Analytics)}
+  \begin{itemize}
+  \item 29 766 265 visits
+  \item 6 606 199 visitors
+  \item 134 417 164 page views
+  \end{itemize}
+}
+
+\frame{
+  \frametitle{worldoftanks.ru day numbers (nginx logs)}
+  \begin{itemize}
+  \item 10 492 199 non-ssl backend requests
+  \item 3 073 424 ssl backend requests
+  \item We unable to log frontend requests (heavy I/O) now
+  \end{itemize}
+}
+
+\frame{
+  \frametitle{Highload}
+  \begin{itemize}
+  \item Highload web projects know how to do only that people, which already did them.
+  \pause
+  \item Wargaming.net don't know how to do highload web projects.
+  \end{itemize}
+}
+
+\section{Architecture}
+\frame{
+    \frametitle{Problems}
+    \begin{itemize}
+    \item thousands of concurrent connections
+    \item data caching, render caching
+    \item effective resource usage
+    \item low latency
+    \item scailability
+    \item depending on other resources
+    \end{itemize}
+}
+
+\frame{
+    \frametitle{Components}
+    \begin{itemize}
+    \item nginx - frontend
+    \item apache+mod\_wsgi - backend
+    \item python - implementation
+    \item memcached - caching
+    \item MySQL - storage
+    \item RabbitMQ - async tasks storage
+    \end{itemize}
+}
+
+\frame{
+    \frametitle{nginx}
+    \begin{itemize}
+    \item use epoll
+    \item worker\_processes 16
+    \item gzip\_comp\_level
+    \item keepalive\_timeout 60
+    \item upstream backend {3+1}
+    \end{itemize}
+}
+
+\frame{
+    \frametitle{apache+mod\_wsgi}
+    \begin{itemize}
+    \item WSGIDaemonProcess ptl-wotru
+    \item user=ptl-wotru group=ptl-wotru
+    \item processes=8 threads=1
+    \item maximum-requests=32768
+    \end{itemize}
+}
+
+\frame{
+    \frametitle{python}
+    \begin{itemize}
+    \item django-1.3.1
+    \item amqlib-1.0.3
+    \item south-0.7.4
+    \item PIL
+    \item Jinja2
+    \item python-memcached
+    \item python-cjson
+    \end{itemize}
+}
+
+\frame{
+    \frametitle{memcached}
+    \begin{itemize}
+    \item CACHESIZE="1024"
+    \item 4 nodes cluster
+    \end{itemize}
+}
+
+\frame{
+    \frametitle{MySQL}
+    \begin{itemize}
+    \item default-storage-engine = INNODB
+    \item character-set-server = utf8
+    \item transaction-isolation = READ-COMMITTED
+    \end{itemize}
+}
+
+\frame{
+    \frametitle{RabbitMQ}
+    \begin{itemize}
+    \item AMQP - Advanced Message Queuing Protocol
+    \end{itemize}
+}
+
+\section{Production}
+\frame{
+    \frametitle{Production}
+    \begin{itemize}
+    \item All is fine, except...
+    \pause
+    \item Questions?
+    \end{itemize}
+}
+
+\end{document}
